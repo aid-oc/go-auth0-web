@@ -2,6 +2,7 @@ package authenticator
 
 import (
 	"context"
+	"errors"
 	"os"
 
 	"github.com/coreos/go-oidc/v3/oidc"
@@ -34,4 +35,17 @@ func New() (*Authenticator, error) {
 		Provider: provider,
 		Config:   conf,
 	}, nil
+}
+
+func (a *Authenticator) VerifyOAuthToken(ctx context.Context, token *oauth2.Token) (*oidc.IDToken, error) {
+	rawToken, ok := token.Extra("id_token").(string)
+	if !ok {
+		return nil, errors.New("no id_token field in oauth2 t oken")
+	}
+
+	oidConfig := &oidc.Config{
+		ClientID: a.ClientID,
+	}
+
+	return a.Verifier(oidConfig).Verify(ctx, rawToken)
 }
