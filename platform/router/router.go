@@ -31,4 +31,7 @@ func New(auth *authenticator.Authenticator) *gin.Engine {
 	// router.GET("/user", user.Handler)
 	// router.GET("/logout", logout.Handler)
 
+	/* Continue at "Serving your application" */
+
+	return router
 }
