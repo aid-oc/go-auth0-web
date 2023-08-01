@@ -3,6 +3,12 @@ package router
 import (
 	"encoding/gob"
 	"go-auth0-web/platform/authenticator"
+	"go-auth0-web/platform/middleware"
+	"go-auth0-web/web/app/callback"
+	"go-auth0-web/web/app/login"
+	"go-auth0-web/web/app/logout"
+	"go-auth0-web/web/app/user"
+	"net/http"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
@@ -20,18 +26,18 @@ func New(auth *authenticator.Authenticator) *gin.Engine {
 	store := cookie.NewStore([]byte("secret"))
 	router.Use(sessions.Sessions("auth-session", store))
 
-	router.Static("/public", "web/static")
-	router.LoadHTMLFiles("web/template/*")
+	router.Static("public", "web/static")
+	router.LoadHTMLGlob("web/template/*")
 
-	// router.GET("/", func(ctx *gin.Context) {
-	// 	ctx.HTML(http.StatusOK, "home.html", nil)
-	// })
-	// router.GET("/login", login.Handler(auth))
-	// router.GET("/callback", callback.Handler(auth))
-	// router.GET("/user", user.Handler)
-	// router.GET("/logout", logout.Handler)
+	router.GET("/", func(ctx *gin.Context) {
+		ctx.HTML(http.StatusOK, "home.html", nil)
+	})
+	router.GET("/login", login.Handler(auth))
+	router.GET("/callback", callback.Handler(auth))
+	router.GET("/user", middleware.IsAuthenticated, user.Handler)
+	router.GET("/logout", logout.Handler)
 
-	/* Continue at "Serving your application" */
+	/* Continue at "Logging in" */
 
 	return router
 }
